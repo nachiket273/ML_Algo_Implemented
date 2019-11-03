@@ -3,7 +3,23 @@ from matplotlib import pyplot as plt
 from sklearn.base import BaseEstimator
 from Utils import entropy, gini, variance, mad_median
 
-class Node():   
+class Node():
+    """
+    A class representing a node in decision tree.
+
+    Args:
+        feature_idx Index of the feature column.
+                    Default: 0
+        threshhold  The threshhold for split for the current node.
+                    Default: 0
+        labels      Labels that belong to current node. Leaf node of tree
+                    contains all the labels belong to that leaf node, while 
+                    non-leaf nodes have this field None.
+        left        Object reference for left child node. For leaf node this
+                    field is None.
+        right       Object reference for right child node. For leaf node this
+                    field is None.
+    """   
     def __init__(self, feature_idx=0, threshold=0, labels=None, left=None, right=None):
         self.feature_idx = feature_idx
         self.threshold = threshold
@@ -12,7 +28,27 @@ class Node():
         self.right = right
 
 class DecisionTree(BaseEstimator):
-    
+    """
+    Class that represents simple implimation of Decision Tree.
+    This class has implementation for both classification tree and regression tree.
+    For classification the prediction is majority probability class.
+    For regression tree the prediction is averge of all the node labels.
+
+    Args:
+        max_depth           The maximum depth to which tree needs to be constructed.
+        min_samples_split   Minimum number of samples need to present for split at the
+                            node.
+                            Default: 2
+        criterion           criterion to be used for split.
+                            For classification tree following criterion are supported:
+                                - gini
+                                - entropy
+                            For regression tree following criterion are supported:
+                                - variance
+                                - mad_median
+                            Default: gini
+        debug               Decides whether to print debug info (Umimplemented)
+    """
     def __init__(self, max_depth=np.inf, min_samples_split=2, 
                  criterion='gini', debug=False):
         self.max_depth = max_depth
