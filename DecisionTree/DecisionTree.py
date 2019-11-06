@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn.base import BaseEstimator
 from Utils import entropy, gini, variance, mad_median
@@ -93,7 +94,7 @@ class DecisionTree(BaseEstimator):
         leftx, lefty , rightx, righty = [],[],[],[]
         threshold = -1
         idx = -1
-        
+
         if len(np.shape(y)) == 1:
             y = np.expand_dims(y, axis=1)
 
@@ -130,6 +131,8 @@ class DecisionTree(BaseEstimator):
         return Node(labels=y)
     
     def fit(self, X, y):
+        if isinstance(X, pd.DataFrame):
+            X = X.to_numpy()
         self.root = self._build_tree(X, y ,0)
         
     def get_pred(self, node):
@@ -154,13 +157,15 @@ class DecisionTree(BaseEstimator):
         
         next_node = node.left
         thresh = node.threshold
-        
+
         if p[node.feature_idx] >= thresh:
             next_node = node.right
             
         return self.get_val(p, next_node)
         
     def predict(self, X):
+        if isinstance(X, pd.DataFrame):
+            X = X.to_numpy()
         preds = [self.get_val(p) for p in X]
         return preds
     
@@ -188,6 +193,21 @@ class DecisionTree(BaseEstimator):
         # only valid for classification
         if self.criterion == 'variance' or self.criterion == 'mad_median':
             raise Exception("Invalid Operation for criterion {}".format(self.criterion))
-            
+
+        if isinstance(X, pd.DataFrame):
+            X = X.to_numpy()
+        
         probs = [self.get_probs(p) for p in X]
-        return probs 
+        return probs
+
+    def display(self, node=None):
+        if not node:
+            node = self.root
+
+        if node.labels is not None:
+            print ("Labels:: {}".format(node.labels))
+        else:
+            print ("Index: {}".format(node.feature_idx))
+            print ("Threshold: {}".format(node.threshold))
+            self.display(node.left)
+            self.display(node.right)
