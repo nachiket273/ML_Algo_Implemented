@@ -30,7 +30,7 @@ class Node():
 
 class DecisionTree(BaseEstimator):
     """
-    Class that represents simple implimation of Decision Tree.
+    Class that represents simple implementation of Decision Tree.
     This class has implementation for both classification tree and regression tree.
     For classification the prediction is majority probability class.
     For regression tree the prediction is averge of all the node labels.
@@ -40,6 +40,8 @@ class DecisionTree(BaseEstimator):
         min_samples_split   Minimum number of samples need to present for split at the
                             node.
                             Default: 2
+        max_features        Maximum features to be used to construct tree.
+                            Default: 0
         criterion           criterion to be used for split.
                             For classification tree following criterion are supported:
                                 - gini
@@ -48,16 +50,25 @@ class DecisionTree(BaseEstimator):
                                 - variance
                                 - mad_median
                             Default: gini
+        random_seed         random seed value for numpy operations.
+                            Default: 0
         debug               Decides whether to print debug info (Umimplemented)
     """
-    def __init__(self, max_depth=np.inf, min_samples_split=2, 
-                 criterion='gini', debug=False):
+    def __init__(self, max_depth=np.inf, min_samples_split=2, max_features=0,
+                 criterion='gini', random_seed =0, debug=False):
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
+        self.max_features = max_features
         self.criterion = criterion
         self.debug = debug
         self.root = None
+        self.n_features = 0
         self.min_impurity = 1e-7
+        self.random_seed = random_seed
+        self.is_classification_tree = False
+
+        if self.criterion == 'entropy' or self.criterion == 'gini':
+            self.is_classification_tree = True
         
     def _calc_critn(self, y, yleft, yright):      
         if self.criterion == 'entropy':
@@ -99,11 +110,16 @@ class DecisionTree(BaseEstimator):
             y = np.expand_dims(y, axis=1)
 
         Xy = np.concatenate((X, y), axis=1)
-
         n_samples, n_features = np.shape(X)
-        
+
+        if self.max_features == 0:
+            feats = list(range(n_features))
+        else:
+            feats = np.random.choice(range(self.n_features), size= self.max_features, replace=False)
+            feats = sorted(list(set(feats)))
+
         if current_depth < self.max_depth and n_samples > self.min_samples_split:
-            for i in range(n_features):
+            for i in feats:
                 feature_values = np.expand_dims(X[:, i], axis=1)
                 for thresh in np.unique(feature_values):
                     xy_thresh, xynot_thresh = self._get_on_crit(Xy, thresh, i)
@@ -131,12 +147,14 @@ class DecisionTree(BaseEstimator):
         return Node(labels=y)
     
     def fit(self, X, y):
+        np.random.seed(self.random_seed)
         if isinstance(X, pd.DataFrame):
             X = X.to_numpy()
+        self.n_features = X.shape[1]
         self.root = self._build_tree(X, y ,0)
         
     def get_pred(self, node):
-        if self.criterion == 'gini' or self.criterion == 'entropy':
+        if self.is_classification_tree:
             unique, counts = np.unique(node.labels, return_counts=True)
             count = 0
             majority = -1
@@ -191,13 +209,12 @@ class DecisionTree(BaseEstimator):
         
     def predict_proba(self, X):
         # only valid for classification
-        if self.criterion == 'variance' or self.criterion == 'mad_median':
+        if not self.is_classification_tree:
             raise Exception("Invalid Operation for criterion {}".format(self.criterion))
 
         if isinstance(X, pd.DataFrame):
             X = X.to_numpy()
-        
-        probs = [self.get_probs(p) for p in X]
+        probs = [self.get_val(p) for p in X]
         return probs
 
     def display(self, node=None):
