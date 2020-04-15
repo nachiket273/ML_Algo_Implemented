@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn.base import BaseEstimator
-from Utils import entropy, gini, variance, mad_median
+import time
+from Utils import entropy, gini, mse, mae
 
 class Node():
     """
@@ -47,15 +48,15 @@ class DecisionTree(BaseEstimator):
                                 - gini
                                 - entropy
                             For regression tree following criterion are supported:
-                                - variance
-                                - mad_median
+                                - mse (mean squared error)
+                                - mae (mean absolute error)
                             Default: gini
         random_seed         random seed value for numpy operations.
                             Default: 0
         debug               Decides whether to print debug info (Umimplemented)
     """
     def __init__(self, max_depth=np.inf, min_samples_split=2, max_features=0,
-                 criterion='gini', random_seed =0, debug=False):
+                 criterion='gini', random_seed =0,debug=False):
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.max_features = max_features
@@ -79,29 +80,35 @@ class DecisionTree(BaseEstimator):
             critn = gini(y)
             critn_left = gini(yleft)
             critn_right = gini(yright)
-        elif self.criterion == 'variance':
-            critn = variance(y)
-            critn_left = variance(yleft)
-            critn_right = variance(yright)
+        elif self.criterion == 'mse':
+            critn = mse(y)
+            critn_left = mse(yleft)
+            critn_right = mse(yright)
+        elif self.criterion == 'mae':
+            critn = mae(y)
+            critn_left = mae(yleft)
+            critn_right = mae(yright)
         else:
-            critn = mad_median(y)
-            critn_left = mad_median(yleft)
-            critn_right = mad_median(yright)
+            raise Exception("Invalid criterion.")
             
         fn = critn - len(yleft) * critn_left / len(y) - len(yright) * critn_right / len(y)        
         return fn
         
     def _get_on_crit(self, Xy, thresh, idx):
         if isinstance(thresh, int) or isinstance(thresh, float):
-            xy_thresh = [p for p in Xy if p[idx] >= thresh]
-            xynot_thresh = [p for p in Xy if p[idx] < thresh]
+            right = np.where(Xy[:, idx] >= thresh)
+            left = np.where(Xy[:, idx] < thresh)
         else:
-            xy_thresh = [p for p in Xy if p[idx] == thresh]
-            xynot_thresh = [p for p in Xy if not p[idx] == thresh]
-        return np.array(xy_thresh), np.array(xynot_thresh)
+            right = np.where(Xy[:, idx] == thresh)
+            left = np.where(Xy[:, idx] != thresh)
+        
+        xy_thresh = Xy[right]
+        xynot_thresh = Xy[left]
+
+        return xy_thresh, xynot_thresh
         
     def _build_tree(self, X, y, current_depth):
-        max_critn = 0
+        max_critn = -np.inf
         leftx, lefty , rightx, righty = [],[],[],[]
         threshold = -1
         idx = -1
@@ -115,7 +122,8 @@ class DecisionTree(BaseEstimator):
         if self.max_features == 0:
             feats = list(range(n_features))
         else:
-            feats = np.random.choice(range(self.n_features), size= self.max_features, replace=False)
+            rng = np.random.default_rng() 
+            feats = rng.choice(range(self.n_features), size=self.max_features, replace=False)
             feats = sorted(list(set(feats)))
 
         if current_depth < self.max_depth and n_samples > self.min_samples_split:
@@ -137,7 +145,7 @@ class DecisionTree(BaseEstimator):
                             leftx, lefty, rightx, righty = xnot_thresh, ynot_thresh, x_thresh, y_thresh
                             threshold = thresh
                             idx = i
-                            
+                                            
         if max_critn > self.min_impurity:
             node = Node(idx, threshold)
             node.left = self._build_tree(leftx, lefty, current_depth+1)

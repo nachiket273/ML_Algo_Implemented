@@ -1,11 +1,14 @@
 import math
 import numpy as np
+import pandas as pd
+from sklearn.base import BaseEstimator
 import sys
 import os
 sys.path.append(os.path.abspath('../DecisionTree'))
 from DecisionTree import DecisionTree
 
-class RandomForest():
+
+class RandomForest(BaseEstimator):
     def __init__(self, n_estimators, max_features=0, max_depth=np.inf, min_samples_split=2, 
                  criterion='gini', random_seed=0, debug=False):
         self.n_estimators = n_estimators
@@ -18,7 +21,7 @@ class RandomForest():
         self.idxs = []
 
         self.trees = []
-        for _ in range(self.n_estimators):
+        for i in range(self.n_estimators):
             self.trees.append(DecisionTree(max_depth= self.max_depth, 
                                                     min_samples_split=self.min_samples_split,
                                                     max_features = self.max_features,
@@ -28,6 +31,10 @@ class RandomForest():
         self.is_classification_forest = False
         if self.criterion == 'gini' or self.criterion == 'entropy':
             self.is_classification_forest = True
+        elif self.criterion == 'mse' or self.criterion == 'mae':
+            self.is_classification_forest = False
+        else:
+            raise Exception("Invalid criterion: {}".format(self.criterion))
 
     def get_subsets(self, X, y, num=1):
         subsets = []
@@ -38,12 +45,13 @@ class RandomForest():
         Xy = np.concatenate((X, y), axis=1)
         num_samples = X.shape[0]
         np.random.shuffle(Xy)
-        
-        for _ in range(num):
-            idx = np.random.choice(
+        rng = np.random.default_rng(seed= self.random_seed) 
+       
+        for _ in range(num):       
+            idx = rng.choice(
                 range(num_samples),
-                size = np.shape(range(int(2 * num_samples//3)), ),
-                replace=False
+                size = np.shape(range(int(num_samples)), ),
+                replace=True
             )
             subsets.append([X[idx], y[idx]])
 
@@ -51,6 +59,8 @@ class RandomForest():
 
     def fit(self, X, y):
         np.random.seed(self.random_seed)
+        if isinstance(X, pd.DataFrame):
+            X = X.to_numpy()
         subsets = self.get_subsets(X, y, self.n_estimators)
 
         if self.max_features == 0:
@@ -58,7 +68,7 @@ class RandomForest():
                 self.max_features = int(math.sqrt(X.shape[1]))
             else:
                 self.max_features = int(X.shape[1] // 3)
-
+                        
         # Bagging - choose random features for each estimator
         # if max_features is provided, else use square root of
         # total number of features.
