@@ -1,7 +1,7 @@
 import numpy as np
 
 
-#https://scikit-learn.org/stable/modules/tree.html?highlight=gini
+#https://scikit-learn.org/stable/modules/tree.html
 def entropy(y):
     _, counts = np.unique(y, return_counts=True)
     probs = counts / np.sum(counts, axis=0, keepdims=True)
@@ -10,7 +10,7 @@ def entropy(y):
 def gini(y):
     _, counts = np.unique(y, return_counts=True)
     probs = counts / np.sum(counts, axis=0, keepdims=True)
-    return np.sum(probs * (1-probs))
+    return 1- np.sum(probs ** 2)
 
 def mse(y):
     mean = np.mean(y, axis=0)

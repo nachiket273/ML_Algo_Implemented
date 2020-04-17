@@ -9,14 +9,43 @@ from DecisionTree import DecisionTree
 
 
 class RandomForest(BaseEstimator):
+    """
+    Simple implementation of Random Forest.
+    This class has implementation for Random Forest classifier and regressor.
+    Dataset bagging is done by simple numpy random choice with replacement.
+    For classification the prediction is by majority vote.
+    For regression tree the prediction is averge of all estimator predictions.
+
+    Args:
+        n_estimators        Number of base estimators (Decision Trees here)
+        max_features        Maximum features to be used to construct tree.
+                            Default:
+                            -   If classifier, default is square root of total
+                                features.
+                            -   If regressor, default is total number of features.
+        max_depth           The maximum depth to which estimators needs to be constructed.
+                            Default: np.inf
+        min_samples_split   Minimum number of samples need to present for split at the
+                            node.
+                            Default: 2
+        criterion           criterion to be used for split.
+                            For classification tree following criterion are supported:
+                                - gini
+                                - entropy
+                            For regression tree following criterion are supported:
+                                - mse (mean squared error)
+                                - mae (mean absolute error)
+                            Default: gini
+        random_seed         random seed value for numpy operations.
+                            Default: 0
+    """
     def __init__(self, n_estimators, max_features=0, max_depth=np.inf, min_samples_split=2, 
-                 criterion='gini', random_seed=0, debug=False):
+                 criterion='gini', random_seed=0):
         self.n_estimators = n_estimators
         self.max_features = max_features
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.criterion = criterion
-        self.debug = debug
         self.random_seed = random_seed
         self.idxs = []
 
@@ -26,8 +55,7 @@ class RandomForest(BaseEstimator):
                                                     min_samples_split=self.min_samples_split,
                                                     max_features = self.max_features,
                                                     criterion=self.criterion,
-                                                    random_seed = self.random_seed,
-                                                    debug = self.debug))
+                                                    random_seed = self.random_seed))
         self.is_classification_forest = False
         if self.criterion == 'gini' or self.criterion == 'entropy':
             self.is_classification_forest = True
@@ -67,7 +95,7 @@ class RandomForest(BaseEstimator):
             if self.is_classification_forest:
                 self.max_features = int(math.sqrt(X.shape[1]))
             else:
-                self.max_features = int(X.shape[1] // 3)
+                self.max_features = int(X.shape[1])
                         
         # Bagging - choose random features for each estimator
         # if max_features is provided, else use square root of

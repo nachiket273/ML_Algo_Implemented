@@ -38,6 +38,7 @@ class DecisionTree(BaseEstimator):
 
     Args:
         max_depth           The maximum depth to which tree needs to be constructed.
+                            Default: np.inf
         min_samples_split   Minimum number of samples need to present for split at the
                             node.
                             Default: 2
@@ -53,15 +54,13 @@ class DecisionTree(BaseEstimator):
                             Default: gini
         random_seed         random seed value for numpy operations.
                             Default: 0
-        debug               Decides whether to print debug info (Umimplemented)
     """
     def __init__(self, max_depth=np.inf, min_samples_split=2, max_features=0,
-                 criterion='gini', random_seed =0,debug=False):
+                 criterion='gini', random_seed =0):
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.max_features = max_features
         self.criterion = criterion
-        self.debug = debug
         self.root = None
         self.n_features = 0
         self.min_impurity = 1e-7
@@ -70,6 +69,13 @@ class DecisionTree(BaseEstimator):
 
         if self.criterion == 'entropy' or self.criterion == 'gini':
             self.is_classification_tree = True
+
+    def randomize(self, feat_arr): 
+        n = len(feat_arr)
+        for i in range(n-1,0,-1): 
+            j = np.random.randint(0,i+1) 
+            feat_arr[i], feat_arr[j] = feat_arr[j], feat_arr[i] 
+        return feat_arr[:self.max_features]
         
     def _calc_critn(self, y, yleft, yright):      
         if self.criterion == 'entropy':
@@ -122,9 +128,10 @@ class DecisionTree(BaseEstimator):
         if self.max_features == 0:
             feats = list(range(n_features))
         else:
-            rng = np.random.default_rng() 
-            feats = rng.choice(range(self.n_features), size=self.max_features, replace=False)
-            feats = sorted(list(set(feats)))
+            #rng = np.random.default_rng() 
+            #feats = rng.choice(range(self.n_features), size=self.max_features, replace=False)
+            #feats = sorted(list(set(feats)))
+            feats = self.randomize(list(range(n_features)))
 
         if current_depth < self.max_depth and n_samples > self.min_samples_split:
             for i in feats:
