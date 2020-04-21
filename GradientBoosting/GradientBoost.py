@@ -23,6 +23,7 @@ class GradientBoost(BaseEstimator):
         self.min_samples_split = min_samples_split
         self.random_seed = random_seed
         self.is_classification = is_classification
+        self.constant_ = 0
 
         if self.is_classification:
             self.loss = DevianceLoss()
@@ -44,7 +45,9 @@ class GradientBoost(BaseEstimator):
                     y_true = y == clss
                     y_true = y_true.astype(int)
                     if not init:
-                        y_pred = np.zeros(X.shape[0], np.float32)
+                        y_pred = np.full(X.shape[0], np.average(y_true))
+                        init = True
+
                     gradients = self.loss.grad(y_true, y_pred, k=j)
                     tree = DecisionTree(max_depth=self.max_depth, 
                                 max_features=self.max_features,
@@ -58,7 +61,8 @@ class GradientBoost(BaseEstimator):
                     trees.append(tree)
                 self.trees.append(trees)
         else:
-            y_pred = np.zeros(X.shape[0])
+            self.constant_ = np.mean(y)
+            y_pred = np.full(X.shape[0], self.constant_)
             for i in range(self.n_estimators):
                 gradients = self.loss.grad(y, y_pred)
                 tree = DecisionTree(max_depth=self.max_depth, 
@@ -83,7 +87,7 @@ class GradientBoost(BaseEstimator):
                 y_preds[:, i] = y_pred
             y_preds = np.argmax(y_preds, axis=1)
         else:
-            y_preds = np.zeros(X_test.shape[0], np.float32)
+            y_preds = np.full(X_test.shape[0], self.constant_)
             for i,_ in enumerate(self.trees):
                 preds = self.trees[i].predict(X_test)
                 y_preds -= np.multiply(self.learning_rate, preds)
