@@ -11,9 +11,9 @@ class Node():
 
     Args:
         feature_idx Index of the feature column.
-                    Default: 0
+                    Default: -1
         threshhold  The threshhold for split for the current node.
-                    Default: 0
+                    Default: None
         labels      Labels that belong to current node. Leaf node of tree
                     contains all the labels belong to that leaf node, while 
                     non-leaf nodes have this field None.
@@ -22,7 +22,7 @@ class Node():
         right       Object reference for right child node. For leaf node this
                     field is None.
     """   
-    def __init__(self, feature_idx=0, threshold=0, labels=None, left=None, right=None):
+    def __init__(self, feature_idx=-1, threshold=None, labels=None, left=None, right=None):
         self.feature_idx = feature_idx
         self.threshold = threshold
         self.labels = labels
@@ -63,6 +63,7 @@ class DecisionTree(BaseEstimator):
         self.criterion = criterion
         self.root = None
         self.n_features = 0
+        self.n_samples = 0
         self.min_impurity = 1e-7
         self.random_seed = random_seed
         self.is_classification_tree = False
@@ -97,13 +98,13 @@ class DecisionTree(BaseEstimator):
         else:
             raise Exception("Invalid criterion.")
             
-        fn = critn - len(yleft) * critn_left / len(y) - len(yright) * critn_right / len(y)        
+        fn = (len(y) * critn - len(yleft) * critn_left - len(yright) * critn_right) / self.n_samples
         return fn
         
     def _get_on_crit(self, Xy, thresh, idx):
         if isinstance(thresh, int) or isinstance(thresh, float):
-            right = np.where(Xy[:, idx] >= thresh)
-            left = np.where(Xy[:, idx] < thresh)
+            right = np.where(Xy[:, idx] > thresh)
+            left = np.where(Xy[:, idx] <= thresh)
         else:
             right = np.where(Xy[:, idx] == thresh)
             left = np.where(Xy[:, idx] != thresh)
@@ -128,9 +129,6 @@ class DecisionTree(BaseEstimator):
         if self.max_features == 0:
             feats = list(range(n_features))
         else:
-            #rng = np.random.default_rng() 
-            #feats = rng.choice(range(self.n_features), size=self.max_features, replace=False)
-            #feats = sorted(list(set(feats)))
             feats = self.randomize(list(range(n_features)))
 
         if current_depth < self.max_depth and n_samples > self.min_samples_split:
@@ -153,11 +151,11 @@ class DecisionTree(BaseEstimator):
                             threshold = thresh
                             idx = i
                                             
-        if max_critn > self.min_impurity:
-            node = Node(idx, threshold)
-            node.left = self._build_tree(leftx, lefty, current_depth+1)
-            node.right = self._build_tree(rightx, righty, current_depth+1)
-            return node
+            if max_critn > self.min_impurity:
+                node = Node(idx, threshold)
+                node.left = self._build_tree(leftx, lefty, current_depth+1)
+                node.right = self._build_tree(rightx, righty, current_depth+1)
+                return node
         
         return Node(labels=y)
     
@@ -166,18 +164,13 @@ class DecisionTree(BaseEstimator):
         if isinstance(X, pd.DataFrame):
             X = X.to_numpy()
         self.n_features = X.shape[1]
+        self.n_samples = X.shape[0]
         self.root = self._build_tree(X, y ,0)
         
     def get_pred(self, node):
         if self.is_classification_tree:
             unique, counts = np.unique(node.labels, return_counts=True)
-            count = 0
-            majority = -1
-            for i, j in zip(unique, counts):
-                if j > count:
-                    count = j
-                    majority = i
-            return majority
+            return unique[np.argmax(counts)]
         else:
             return np.average(node.labels)
                    
@@ -237,6 +230,7 @@ class DecisionTree(BaseEstimator):
             node = self.root
 
         if node.labels is not None:
+            print("Num Labels:: {}".format(len(node.labels)))
             print ("Labels:: {}".format(node.labels))
         else:
             print ("Index: {}".format(node.feature_idx))
