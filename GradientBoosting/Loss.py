@@ -19,12 +19,12 @@ class DevianceLoss(Loss):
         return np.average(-1 * (y_true * y_pred).sum(axis=1) + logsumexp(y_pred, axis=1))
 
     def grad(self, y_true, y_pred, k=0):
-        return -1.0 * y_true + np.nan_to_num(np.exp(y_pred -
-                                        logsumexp(y_pred)))
+        return y_true - np.nan_to_num(np.exp(y_pred[:, k] -
+                                        logsumexp(y_pred, axis=1)))
 
 class MSE(Loss):
     def loss(self, y_true, y_pred):
         return 0.5 * np.mean((y_true - y_pred.ravel()) ** 2.0)
 
     def grad(self, y_true, y_pred):
-        return -(y_true - y_pred.ravel())
+        return y_true - y_pred.ravel()
