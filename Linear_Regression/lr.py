@@ -3,6 +3,9 @@ from sklearn.base import BaseEstimator
 from util import normalize, ols
 
 class LinearRegression(BaseEstimator):
+    """
+    Class with simple implementation of linear regression.
+    """
     def __init__(self):
         self.coef_ = None
         self.intercept_ = None
