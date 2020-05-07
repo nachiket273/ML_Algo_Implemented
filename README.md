@@ -1,7 +1,8 @@
 # ML_Algo_Implemented
 
 Simple Implementations of some Machine Learning Algorithms.<br>
-Along with implementation, it contains 
+Along with implementation, it contains simple notebook that compares results of these implemenations <br>
+with standard sklearn library implementations. <br>
 Note that these implementations are very simple and do not consider aspects like space complexity, time complexity,<br>
 scalability, correct error messaging etc. <br>
 Most of the implementations use NumPy ( scarcely use Scipy ) and mostly do not have any other requirement.<br>
