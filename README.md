@@ -1,14 +1,16 @@
 # ML_Algo_Implemented
 
 Simple Implementations of some Machine Learning Algorithms.<br>
+Along with implementation, it contains 
 Note that these implementations are very simple and do not consider aspects like space complexity, time complexity,<br>
 scalability, correct error messaging etc. <br>
-Most of the implementations use NumPy ( scarsly use Scipy ) and mostly do not have any other requirement.<br>
+Most of the implementations use NumPy ( scarcely use Scipy ) and mostly do not have any other requirement.<br>
 
 # Pre-Requisite
-1) NumPy ( pip install numpy)
-2) SciPy ( pip install scipy)
-3) seaborn for plotting ( similar plotting can be done using matplotlib too)
+1) [NumPy](https://numpy.org/) ( pip install numpy)
+2) [SciPy](https://www.scipy.org/) ( pip install scipy)
+3) [Sklearn](https://scikit-learn.org/stable/) ( used for comparison and metrics like accuracy_score etc) ( pip install -U scikit-learn)
+4) [seaborn](https://seaborn.pydata.org/) ( for plotting, similar plotting can be done using matplotlib too)
 
 
 # Implementations
