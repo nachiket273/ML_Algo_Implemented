@@ -10,3 +10,4 @@ Implementations of few Machine Learning Algorithms
 4) [Gradient Boosting](./GradientBoosting)
 5) [Linear Regression](./Linear_Regression)
 6) [Logistic Regression (with Gradient Descent)](./Logistic_Regression)
+7) [K-means](./KMeans)
