@@ -21,7 +21,7 @@ class LogisticRegression(BaseEstimator):
                             Default: 1
         iters               Number of epoachs for which gradient descent is run.
                             Default: 100
-        random_seed         random seed value for numpy operations.
+        random_seed         Random seed value for numpy operations.
                             Default: 0
     """
     def __init__(self, lr=0.1, regularization='l2', C= 1.0, iters=100, random_seed=0):

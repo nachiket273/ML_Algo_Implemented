@@ -10,6 +10,28 @@ sys.path.append(os.path.abspath('../DecisionTree'))
 from DecisionTree import DecisionTree
 
 class GradientBoost(BaseEstimator):
+    """
+    Class for Simple Gradient Boost implementation.
+
+    Args:
+        n_estimators        Number of regression trees used for boosting.
+        learning_rate       Learning rate to scale the gradient.
+                            Default: 0.1
+        criterion           criterion to be used to calculate loss.
+                            The supported criterion are 'mse' or 'mae'
+                            Default: 'mse'
+        max_features        Maximum features to be used to construct tree.
+                            Default: 0
+        max_depth           The maximum depth to which estimators needs to be constructed.
+                            Default: np.inf
+        min_samples_split   Minimum number of samples need to present for split at the
+                            node.
+                            Default: 2
+        is_classification   Boolean to specify if the task is classification or regression.
+                            Default: True
+        random_seed         Random seed value for numpy operations.
+                            Default: 0
+    """
     def __init__(self, n_estimators, learning_rate=0.1, criterion='mse', 
                     max_features=0, 
                     max_depth=3, min_samples_split=2, 
