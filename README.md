@@ -23,3 +23,4 @@ Most of the implementations use NumPy ( scarcely use Scipy ) and mostly do not h
 5) [Linear Regression](./Linear_Regression)
 6) [Logistic Regression (with Gradient Descent)](./Logistic_Regression)
 7) [K-means](./KMeans)
+8) [DBSCAN](./DBSCAN)
