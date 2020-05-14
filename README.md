@@ -12,7 +12,7 @@ Most of the implementations use NumPy ( scarcely use Scipy ) and mostly do not h
 2) [SciPy](https://www.scipy.org/) ( pip install scipy)
 3) [Sklearn](https://scikit-learn.org/stable/) ( used for comparison and metrics like accuracy_score etc) ( pip install -U scikit-learn)
 4) [seaborn](https://seaborn.pydata.org/) ( for plotting, similar plotting can be done using matplotlib too)
-
+5) [cvxopt](https://cvxopt.org/) ( for quadratic optimization for SVM )
 
 # Implementations
 ----------------------------------------------------------------------------------------
@@ -24,3 +24,4 @@ Most of the implementations use NumPy ( scarcely use Scipy ) and mostly do not h
 6) [Logistic Regression (with Gradient Descent)](./Logistic_Regression)
 7) [K-means](./KMeans)
 8) [DBSCAN](./DBSCAN)
+9) [SVM](./SVM)
