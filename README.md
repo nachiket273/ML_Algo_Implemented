@@ -25,3 +25,6 @@ Most of the implementations use NumPy ( scarcely use Scipy ) and mostly do not h
 7) [K-means](./KMeans)
 8) [DBSCAN](./DBSCAN)
 9) [SVM](./SVM)
+
+# Contact
+Feel free to [mail](nachiket.tanksale@gmail.com) or contact me on [LinkedIn](https://www.linkedin.com/in/nachikettanksale/)
