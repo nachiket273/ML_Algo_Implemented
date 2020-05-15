@@ -3,6 +3,36 @@ import numpy as np
 from svm_opt import SVM_Opt as opt
 
 class SVC():
+    '''
+    Class with SVM binary and multiclass classifier implementation.
+    cvxopt quadratic optimization is used to solve optimization problem 
+    with soft margins.
+    Multi-class classification uses "one-vs-one"(ovo) strategy by default
+    and will train num_class * (num_class -1) /2 classifiers.
+
+    Args:
+        C                   Penalty term used for soft-margin.
+                            Default: 1.0
+        kernel              Kernel functions.
+                            supported: Linear, Polynomial, RBF, Laplace, Sigmoid
+                            Default: linear
+        tol                 Tolerance value for langrage multipliers.
+                            Default: 1e-5
+        iters               Number of iterations used in cvxopt optimization.
+                            Default cvxopt value is updated with option 
+                            cvxopt.solvers.options['maxiters']
+                            Default: 100
+        degree              Degree be used for polynomial kernel.
+                            Default: 3
+        coef                Coeficient value used in polynomial kernel.
+                            Default: 0
+        gamma               Defines how far influence of training samples.
+                            If None, 1/num_features is used.
+                            If gamma = 1/ (variance)**2 , the rbf kernel is Gaussian.
+                            Default: None
+        random_seed         random seed value for numpy operations.
+                            Default: 0
+    '''
     def __init__(self, C=1.0, kernel='linear', tol=1e-5, iters=100, degree=3, coef =0, gamma=None, random_seed=0):
         self.C = C
         self.kernel = kernel.lower()
@@ -44,16 +74,6 @@ class SVC():
                     preds.append(pred)
             preds = np.array(preds)
             final_preds = [Counter(preds[:, i]).most_common(1)[0][0] for i in range(X_test.shape[0])]
-            '''
-            for x in X_test:
-                scores = np.zeros(self.num_classes_)
-                for i in range(self.num_classes_):
-                    for classifier in self.classifiers[i]:
-                        pred = classifier._predict(x).item()
-                        idx = np.argwhere(self.classes_ == pred).item()
-                        scores[idx] += 1
-                preds.append(np.random.choice(np.where(scores==max(scores))[0]))
-            '''
             return np.array(final_preds)
         elif self.num_classes_ == 2:
             return self.classifiers._predict(X_test)

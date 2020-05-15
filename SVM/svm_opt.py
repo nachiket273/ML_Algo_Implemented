@@ -3,7 +3,6 @@ from kernels import Linear, Polynomial, RBF, Laplace, Sigmoid
 import numpy as np
 
 
-
 class SVM_Opt():
     def __init__(self, C=1.0, kernel='linear', tol=1e-5, iters=100, degree=3, coef =0, gamma=None, random_seed=0):
         self.C = C
@@ -21,14 +20,15 @@ class SVM_Opt():
         # https://xavierbourretsicotte.github.io/SVM_implementation.html
         # Implementing the SVM algorithm (Soft Margin)
         num_samples = X.shape[0]
-        P = matrix(np.outer(y , y) * kernels, tc='d')
+        P = matrix(np.outer(y , y) * kernels)
         q = matrix(np.ones((num_samples, 1)) * -1)
         A = matrix(y, (1, num_samples), tc='d')
-        b = matrix(np.zeros(1), tc='d')
-        G = matrix(np.vstack((-np.identity(num_samples), np.identity(num_samples))))
-        h = matrix(np.hstack((np.zeros(num_samples), self.C * np.ones(num_samples))))
+        b = matrix((0.0))
+        G = matrix(np.vstack((np.diag(np.ones(num_samples)* -1), np.identity(num_samples))))
+        h = matrix(np.hstack((np.zeros(num_samples), np.ones(num_samples) * self.C)))
 
         solvers.options['show_progress'] = False
+        solvers.options['maxiters'] = self.iters
 
         soln = solvers.qp(P, q, G, h, A, b)
         return soln
@@ -83,9 +83,7 @@ class SVM_Opt():
         else:
             self.coef_ = None
 
-        self.intercept_ = self.labels_[0]
-        for i in range(len(self.lagr_mults_)):
-            self.intercept_ -= self.dual_coef_[i] * kernels[self.support_[i], 0]
+        self.intercept_ = np.mean(self.labels_- self.dual_coef_ * kernels[idx, idx])
 
     def _predict(self, X_test):
         if self.coef_ is not None:
