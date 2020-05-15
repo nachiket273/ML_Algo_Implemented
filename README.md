@@ -27,4 +27,4 @@ Most of the implementations use NumPy ( scarcely use Scipy ) and mostly do not h
 9) [SVM](./SVM)
 
 # Contact
-Feel free to [mail](nachiket.tanksale@gmail.com) or contact me on [LinkedIn](https://www.linkedin.com/in/nachikettanksale/)
+Feel free to [email](mailto:nachiket.tanksale@gmail.com) or contact me on [LinkedIn](https://www.linkedin.com/in/nachikettanksale/)
