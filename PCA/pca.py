@@ -1,6 +1,5 @@
 import numpy as np
-from numpy.linalg import eig
-from scipy.linalg import svd
+from numpy.linalg import eigh, svd
 
 class pca():
     def __init__(self, n_components=2, solver='svd'):
@@ -32,7 +31,7 @@ class pca():
             _, vh = self._adjust_signs(u, vh)
         else:
             cov_mat = self._calc_conv_mat(X.T)
-            s, vh = eig(cov_mat)
+            s, vh = eigh(cov_mat)
             vh = vh.T
             max_col = np.argmax(np.abs(vh), axis=1)
             signs = np.sign(vh[range(vh.shape[0]), max_col])
