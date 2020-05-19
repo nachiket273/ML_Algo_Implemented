@@ -26,6 +26,7 @@ Most of the implementations use NumPy ( scarcely use Scipy ) and mostly do not h
 8) [DBSCAN](./DBSCAN)
 9) [SVM](./SVM)
 10) [Naive_Bayes](./Naive_Bayes)
+11) [PCA](./PCA)
 
 # Contact
 Feel free to [email](mailto:nachiket.tanksale@gmail.com) or contact me on [LinkedIn](https://www.linkedin.com/in/nachikettanksale/)
